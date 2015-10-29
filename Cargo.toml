@@ -1,0 +1,17 @@
+[package]
+name = "rusterpassword"
+version = "0.1.0"
+authors = [ "Greg V <greg@unrelenting.technology>" ]
+keywords = [ "Security", "Password", "Master Password" ]
+description = ""
+license = "Unlicense"
+readme = "README.md"
+homepage = "https://github.com/myfreeweb/rusterpassword"
+repository = "https://github.com/myfreeweb/rusterpassword"
+documentation = "https://myfreeweb.github.io/autodocs/rusterpassword/rusterpassword"
+
+[dependencies]
+libc = "^0.1"
+secstr = "^0.1"
+byteorder = "^0.3"
+libsodium-sys = "^0.0"
