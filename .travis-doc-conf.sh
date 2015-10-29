@@ -1,0 +1,3 @@
+PROJECT_NAME=rusterpassword
+DOCS_REPO=myfreeweb/autodocs.git
+SSH_KEY_TRAVIS_ID=fe3fab987e8b
