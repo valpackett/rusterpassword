@@ -7,7 +7,7 @@ rust:
 before_script:
   - wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.5.tar.gz
   - tar -xzvf libsodium-1.0.5.tar.gz
-  - cd libsodium-1.0.5 && ./configure --prefix=$HOME/.local && make && make install
+  - (cd libsodium-1.0.5 && ./configure --prefix=$HOME/.local && make && make install)
   - export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$HOME/.local/lib/pkgconfig
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.local/lib
 after_success: cargo doc && curl https://raw.githubusercontent.com/myfreeweb/autodocs/master/travis-doc-upload.sh | sh
