@@ -53,7 +53,7 @@ pub fn gen_master_key_custom(password: SecStr, salt: SecStr, n: u64, r: u32, p: 
     }
 }
 
-/// Generate a 512-bit (64-byte) master key.
+/// Generate a 512-bit (64-byte) master key using scrypt.
 pub fn gen_master_key(password: SecStr, name: &str) -> io::Result<SecStr> {
     let mut salt = vec![];
     salt.extend(SALT_PREFIX);
@@ -62,7 +62,7 @@ pub fn gen_master_key(password: SecStr, name: &str) -> io::Result<SecStr> {
     gen_master_key_custom(password, SecStr::new(salt), 32768, 8, 2, 64)
 }
 
-/// Generate a 256-bit (32-byte) site seed.
+/// Generate a 256-bit (32-byte) site seed using HMAC-SHA-256.
 pub fn gen_site_seed(master_key: &SecStr, site_name: &str, counter: u32) -> io::Result<SecStr> {
     let mut msg = vec![];
     msg.extend(SALT_PREFIX);
@@ -92,7 +92,7 @@ pub fn gen_site_seed(master_key: &SecStr, site_name: &str, counter: u32) -> io::
     }
 }
 
-/// Generate a password site seed using templates.
+/// Generate a readable password from a site seed using templates.
 pub fn gen_site_password(site_seed: SecStr, templates: &[&str]) -> SecStr {
     let site_seed_a = site_seed.unsecure();
     let template = templates[site_seed_a[0] as usize % templates.len()];

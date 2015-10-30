@@ -2,15 +2,30 @@
 
 A [Rust] implementation of the [Master Password algorithm].
 
+Uses [secstr] secure strings and [libsodium] through [sodiumoxide]'s underlying `libsodium-sys`.
+
 [Rust]: https://www.rust-lang.org
 [Master Password algorithm]: https://ssl.masterpasswordapp.com/algorithm.html
+[secstr]: https://github.com/myfreeweb/secstr
+[libsodium]: https://github.com/jedisct1/libsodium
+[sodiumoxide]: https://github.com/dnaq/sodiumoxide
 
 ## Usage
 
-TODO
-
 ```rust
+extern crate secstr;
 extern crate rusterpassword;
+extern crate sodiumoxide;
+
+use secstr::*;
+use rusterpassword::*;
+
+fn main() {
+    sodiumoxide::init();
+    let master_key = gen_master_key(SecStr::from("Correct Horse Battery Staple"), "Cosima Niehaus").unwrap();
+    let site_seed = gen_site_seed(&master_key, "twitter.com", 5).unwrap();
+    let password = gen_site_password(site_seed, TEMPLATES_MAXIMUM);
+}
 ```
 
 ## Contributing
