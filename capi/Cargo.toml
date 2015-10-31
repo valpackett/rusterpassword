@@ -1,0 +1,17 @@
+[package]
+name = "rusterpassword-capi"
+version = "0.1.0"
+authors = [ "Greg V <greg@unrelenting.technology>" ]
+description = "C API for rusterpassword"
+license = "Unlicense"
+
+[lib]
+name = "rusterpassword_capi"
+crate-type = ["rlib", "dylib", "staticlib"]
+
+[dependencies]
+libc = "0"
+secstr = "0"
+
+[dependencies.rusterpassword]
+path = "../"

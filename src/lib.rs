@@ -93,7 +93,7 @@ pub fn gen_site_seed(master_key: &SecStr, site_name: &str, counter: u32) -> io::
 }
 
 /// Generate a readable password from a site seed using templates.
-pub fn gen_site_password(site_seed: SecStr, templates: &[&str]) -> SecStr {
+pub fn gen_site_password(site_seed: &SecStr, templates: &[&str]) -> SecStr {
     let site_seed_a = site_seed.unsecure();
     let template = templates[site_seed_a[0] as usize % templates.len()];
     let mut i = 0;
@@ -122,21 +122,21 @@ mod tests {
     fn test_pin() {
         let master_key = gen_master_key(SecStr::from("Correct Horse Battery Staple"), "Cosima Niehaus").unwrap();
         let site_seed = gen_site_seed(&master_key, "bank.com", 1).unwrap();
-        assert_eq!(gen_site_password(site_seed, TEMPLATES_PIN).unsecure(), b"7404")
+        assert_eq!(gen_site_password(&site_seed, TEMPLATES_PIN).unsecure(), b"7404")
     }
 
     #[test]
     fn test_long() {
         let master_key = gen_master_key(SecStr::from("Correct Horse Battery Staple"), "Cosima Niehaus").unwrap();
         let site_seed = gen_site_seed(&master_key, "twitter.com", 5).unwrap();
-        assert_eq!(gen_site_password(site_seed, TEMPLATES_LONG).unsecure(), b"Kiwe2^BecuRodw")
+        assert_eq!(gen_site_password(&site_seed, TEMPLATES_LONG).unsecure(), b"Kiwe2^BecuRodw")
     }
 
     #[test]
     fn test_maximum() {
         let master_key = gen_master_key(SecStr::from("hunter2"), "UserName").unwrap();
         let site_seed = gen_site_seed(&master_key, "test", 1).unwrap();
-        assert_eq!(gen_site_password(site_seed, TEMPLATES_MAXIMUM).unsecure(), b"e5:kl#V@0uAZ02xKUic5")
+        assert_eq!(gen_site_password(&site_seed, TEMPLATES_MAXIMUM).unsecure(), b"e5:kl#V@0uAZ02xKUic5")
     }
 
 }
