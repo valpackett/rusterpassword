@@ -6,6 +6,7 @@ Uses [secstr] secure strings and [libsodium] through [sodiumoxide]'s underlying 
 
 Also includes a C API for calling from other languages.
 
+
 [Rust]: https://www.rust-lang.org
 [Master Password algorithm]: https://ssl.masterpasswordapp.com/algorithm.html
 [secstr]: https://github.com/myfreeweb/secstr

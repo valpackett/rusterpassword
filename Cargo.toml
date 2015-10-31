@@ -2,7 +2,7 @@
 name = "rusterpassword"
 version = "0.1.0"
 authors = [ "Greg V <greg@unrelenting.technology>" ]
-keywords = [ "Security", "Password", "Master Password" ]
+keywords = [ "Security", "Password", "MasterPassword" ]
 description = "An implementation of the Master Password algorithm."
 license = "Unlicense"
 readme = "README.md"
