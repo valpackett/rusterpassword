@@ -12,6 +12,4 @@ crate-type = ["rlib", "dylib", "staticlib"]
 [dependencies]
 libc = "0"
 secstr = "0"
-
-[dependencies.rusterpassword]
-path = "../"
+rusterpassword = "0"
