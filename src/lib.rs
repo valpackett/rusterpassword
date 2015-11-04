@@ -79,7 +79,7 @@ pub fn gen_site_seed(master_key: &SecStr, site_name: &str, counter: u32) -> io::
             master_key.unsecure().len() as size_t);
         ret += ffi::crypto_auth_hmacsha256_update(
             &mut state,
-            msg.as_ptr(), msg.len() as size_t);
+            msg.as_ptr(), msg.len() as u64);
         ret += ffi::crypto_auth_hmacsha256_final(
             &mut state,
             dst.as_mut_ptr() as *mut [u8; 32]);

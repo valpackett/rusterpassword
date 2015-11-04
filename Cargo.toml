@@ -11,7 +11,7 @@ repository = "https://github.com/myfreeweb/rusterpassword"
 documentation = "https://myfreeweb.github.io/autodocs/rusterpassword/rusterpassword"
 
 [dependencies]
-libc = "0"
-secstr = "0"
+libc = "0.2"
+secstr = "0.2"
 byteorder = "0"
 libsodium-sys = "0"
