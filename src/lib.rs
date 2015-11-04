@@ -57,7 +57,7 @@ pub fn gen_master_key_custom(password: SecStr, salt: SecStr, n: u64, r: u32, p: 
 pub fn gen_master_key(password: SecStr, name: &str) -> io::Result<SecStr> {
     let mut salt = vec![];
     salt.extend(SALT_PREFIX);
-    salt.write_u32::<BigEndian>(name.len() as u32).unwrap();
+    try!(salt.write_u32::<BigEndian>(name.len() as u32));
     salt.extend(name.bytes());
     gen_master_key_custom(password, SecStr::new(salt), 32768, 8, 2, 64)
 }
@@ -66,9 +66,9 @@ pub fn gen_master_key(password: SecStr, name: &str) -> io::Result<SecStr> {
 pub fn gen_site_seed(master_key: &SecStr, site_name: &str, counter: u32) -> io::Result<SecStr> {
     let mut msg = vec![];
     msg.extend(SALT_PREFIX);
-    msg.write_u32::<BigEndian>(site_name.len() as u32).unwrap();
+    try!(msg.write_u32::<BigEndian>(site_name.len() as u32));
     msg.extend(site_name.bytes());
-    msg.write_u32::<BigEndian>(counter).unwrap();
+    try!(msg.write_u32::<BigEndian>(counter));
     let mut dst = Vec::<u8>::with_capacity(32);
     if unsafe {
         let mut state = uninitialized::<ffi::crypto_auth_hmacsha256_state>();
