@@ -1,6 +1,6 @@
 [package]
 name = "rusterpassword"
-version = "0.1.0"
+version = "0.2.0"
 authors = [ "Greg V <greg@unrelenting.technology>" ]
 keywords = [ "Security", "Password", "MasterPassword" ]
 description = "An implementation of the Master Password algorithm."
