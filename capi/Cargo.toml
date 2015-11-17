@@ -7,7 +7,6 @@ license = "Unlicense"
 
 [lib]
 name = "rusterpassword_capi"
-crate-type = ["rlib", "dylib", "staticlib"]
 
 [dependencies]
 libc = "0"

@@ -42,8 +42,8 @@ pub unsafe extern fn rusterpassword_free_master_key(master_key: *mut SecStr) {
 }
 
 #[no_mangle]
-pub unsafe extern fn rusterpassword_free_site_seed(master_key: *mut SecStr) {
-    Box::from_raw(master_key);
+pub unsafe extern fn rusterpassword_free_site_seed(site_seed: *mut SecStr) {
+    Box::from_raw(site_seed);
 }
 
 #[no_mangle]
