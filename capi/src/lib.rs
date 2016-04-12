@@ -1,9 +1,8 @@
-extern crate libc;
 extern crate secstr;
 extern crate rusterpassword;
 
-use libc::*;
 use std::ffi::*;
+use std::os::raw::c_char;
 use secstr::*;
 use rusterpassword::*;
 
