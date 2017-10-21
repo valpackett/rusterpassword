@@ -34,6 +34,15 @@ pub const TEMPLATES_SHORT : &'static [&'static str] = &["Cvcn"];
 pub const TEMPLATES_BASIC : &'static [&'static str] = &["aaanaaan", "aannaaan", "aaannaaa"];
 pub const TEMPLATES_PIN : &'static [&'static str] = &["nnnn"];
 
+const IDENTICON_LEFT_ARMS: &'static [&'static str] = &["╔", "╚", "╰", "═"];
+const IDENTICON_RIGHT_ARMS: &'static [&'static str] = &["╗", "╝", "╯", "═"];
+const IDENTICON_BODIES: &'static [&'static str] = &["█", "░", "▒", "▓", "☺", "☻"];
+const IDENTICON_ACCESSORIES: &'static [&'static str] = &[
+    "◈", "◎", "◐", "◑", "◒", "◓", "☀", "☁", "☂", "☃", "", "★", "☆", "☎", "☏", "⎈", "⌂", "☘", "☢", "☣",
+    "☕", "⌚", "⌛", "⏰", "⚡", "⛄", "⛅", "☔", "♔", "♕", "♖", "♗", "♘", "♙", "♚", "♛", "♜", "♝", "♞", "♟",
+    "♨", "♩", "♪", "♫", "⚐", "⚑", "⚔", "⚖", "⚙", "⚠", "⌘", "⏎", "✄", "✆", "✈", "✉", "✌"
+];
+
 /// Low level master key generation function (basically, scrypt).
 pub fn gen_master_key_custom(password: SecStr, salt: SecStr, n: u64, r: u32, p: u32, result_len: usize) -> io::Result<SecStr> {
     let password_a = password.unsecure();
@@ -69,27 +78,7 @@ pub fn gen_site_seed(master_key: &SecStr, site_name: &str, counter: u32) -> io::
     try!(msg.write_u32::<BigEndian>(site_name.len() as u32));
     msg.extend(site_name.bytes());
     try!(msg.write_u32::<BigEndian>(counter));
-    let mut dst = Vec::<u8>::with_capacity(32);
-    if unsafe {
-        let mut state = uninitialized::<ffi::crypto_auth_hmacsha256_state>();
-        let mut ret = 0;
-        ret += ffi::crypto_auth_hmacsha256_init(
-            &mut state,
-            master_key.unsecure().as_ptr() as *const u8,
-            master_key.unsecure().len() as size_t);
-        ret += ffi::crypto_auth_hmacsha256_update(
-            &mut state,
-            msg.as_ptr(), msg.len() as u64);
-        ret += ffi::crypto_auth_hmacsha256_final(
-            &mut state,
-            dst.as_mut_ptr() as *mut [u8; 32]);
-        ret
-    } == 0 {
-        unsafe { dst.set_len(32); }
-        Ok(SecStr::new(dst))
-    } else {
-        Err(io::Error::new(io::ErrorKind::Other, "HMAC-SHA-256 failed"))
-    }
+    hash_hmac_sha256(master_key, &msg)
 }
 
 /// Generate a readable password from a site seed using templates.
@@ -111,6 +100,53 @@ pub fn gen_site_password(site_seed: &SecStr, templates: &[&str]) -> SecStr {
             _   => b"AEIOUaeiouBCDFGHJKLMNPQRSTVWXYZbcdfghjklmnpqrstvwxyz0123456789!@#$%^&*()"[(site_seed_a[i] % 72) as usize]
         }
     }).collect::<Vec<_>>())
+}
+
+/// Create identicon for password and name combination
+pub fn create_identicon(master_pass: &SecStr, name: &str) -> Identicon {
+    let seed = hash_hmac_sha256(master_pass, name.as_bytes()).expect("Failed to generate identicon seed");
+    Identicon {
+        left_arm: IDENTICON_LEFT_ARMS[seed.unsecure()[0] as usize % (IDENTICON_LEFT_ARMS.len())],
+        body: IDENTICON_BODIES[seed.unsecure()[1] as usize % (IDENTICON_BODIES.len())],
+        right_arm: IDENTICON_RIGHT_ARMS[seed.unsecure()[2] as usize % (IDENTICON_RIGHT_ARMS.len())],
+        accessory: IDENTICON_ACCESSORIES[seed.unsecure()[3] as usize % (IDENTICON_ACCESSORIES.len())],
+        color: (seed.unsecure()[4] % 7 + 1) as u8,
+    }
+}
+
+/// Generate a 256-bit (32-byte) hash using HMAC-SHA-256.
+fn hash_hmac_sha256(key: &SecStr, msg: &[u8]) -> io::Result<SecStr> {
+    let mut dst = Vec::<u8>::with_capacity(32);
+    if unsafe {
+        let mut state = uninitialized::<ffi::crypto_auth_hmacsha256_state>();
+        let mut ret = 0;
+        ret += ffi::crypto_auth_hmacsha256_init(
+            &mut state,
+            key.unsecure().as_ptr() as *const u8,
+            key.unsecure().len() as size_t);
+        ret += ffi::crypto_auth_hmacsha256_update(
+            &mut state,
+            msg.as_ptr(),
+            msg.len() as u64);
+        ret += ffi::crypto_auth_hmacsha256_final(
+            &mut state,
+            dst.as_mut_ptr() as *mut [u8; 32]);
+        ret
+    } == 0 {
+        unsafe { dst.set_len(32); }
+        Ok(SecStr::new(dst))
+    } else {
+        Err(io::Error::new(io::ErrorKind::Other, "HMAC-SHA-256 failed"))
+    }
+}
+
+#[derive(Debug,PartialEq)]
+pub struct Identicon {
+    pub left_arm: &'static str,
+    pub right_arm: &'static str,
+    pub body: &'static str,
+    pub accessory: &'static str,
+    pub color: u8,
 }
 
 #[cfg(test)]
@@ -138,5 +174,12 @@ mod tests {
         let site_seed = gen_site_seed(&master_key, "test", 1).unwrap();
         assert_eq!(gen_site_password(&site_seed, TEMPLATES_MAXIMUM).unsecure(), b"e5:kl#V@0uAZ02xKUic5")
     }
-
+  
+    #[test]
+    fn test_identicon() {
+        let master_pass = SecStr::from("test1234");
+        let name = "test";
+        let expected = Identicon { left_arm: "═", right_arm: "╗", body: "▓", accessory: "♪", color: 7u8 };
+        assert_eq!(create_identicon(&master_pass, name), expected);
+    }
 }
